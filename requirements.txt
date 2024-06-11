@@ -1,0 +1,8 @@
+ruamel.yaml
+pandas
+pandas-stubs
+requests
+types-requests
+google-auth
+google-api-python-client
+google_auth_oauthlib
