@@ -14,7 +14,7 @@ The file `marking_puller_2.py` is the entry point.
 - delete `student.pickle` so that it forces a fresh pull
 - if you have a fresh pull of the repo, you'll need a new `credentials.json` file.
   - follow this guide https://developers.google.com/workspace/guides/create-credentials
-  - You need to make a web app Oauth set of creds, download it, and paste it into `marking_and_admin/credentials.json`
+  - You need to make a web app Oauth set of creds, download it, and paste it into `credentials.json`
   - There's one ready to do in the CoDewords project in the google dashboard
   - run it, it'll fail on the `flow.run_local_server()` so it'll run the `flow.run_console()` and then it'll let you in.
   - you might need to enable the api, look at the error message, it has a link
@@ -22,4 +22,3 @@ The file `marking_puller_2.py` is the entry point.
 TODO:
 
 - congratulate everyone who has a full set of passing tests
-

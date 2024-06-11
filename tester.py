@@ -17,7 +17,7 @@ for name in repos:
     timeout_cap = 25
     args = [
         "python",
-        "marking_and_admin\\test_shim.py",
+        "test_shim.py",  # if this breaks, it might need ./ on the front
         f"..\\course\\set{week_number}\\tests.py",
         f"..\\StudentRepos\\{name}",
         name,
