@@ -19,7 +19,7 @@ MARKING_SPREADSHEET_ID = os.getenv("GOOGLE_SHEETS_KEY", "")
 
 if __name__ == "__main__":
     do_the_marking(
-        this_year="2023",
+        this_year="2024",
         rootdir="../StudentRepos",
         chatty=False,
         force_marking=True,
