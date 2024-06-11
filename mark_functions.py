@@ -23,6 +23,7 @@ from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from pandas import DataFrame, Series
+from ruamel.yaml import YAML
 
 
 class RunCmd(threading.Thread):
@@ -554,13 +555,14 @@ def mark_work(dirList, set_number, root_dir, dfPlease=True, timeout=5):
 
 
 def get_details(row: Series) -> dict:
+    yaml = YAML(typ="rt")
     try:
         path_to_aboutMe = os.path.abspath(
             os.path.join(ROOTDIR, row.owner, "aboutMe.yml")
         )
         with open(path_to_aboutMe, "r", encoding="utf-8") as yf:
             details_raw_yaml = yf.read()
-        details: dict = dict(yaml.load(details_raw_yaml, yaml.RoundTripLoader))
+        details: dict = dict(yaml.load(details_raw_yaml))
         details["error"] = "👍"
         details["owner"] = row.owner
         return details
