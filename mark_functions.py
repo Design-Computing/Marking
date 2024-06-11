@@ -201,8 +201,8 @@ def get_forks(
     api = "https://api.github.com"
     limit = 100
     # TODO: #29 take these secrets out, put them in an env, and reset them
-    client_id = os.getenv("CLIENT_ID_GITHUB","") # "040e86e3feed633710a0"
-    secret = os.getenv("SECRET_GITHUB","")#"69588d73388091b5ff8635fd1a788ea79177bf69"
+    client_id = os.getenv("CLIENT_ID_GITHUB", "")
+    secret = os.getenv("SECRET_GITHUB", "")
     url = (
         f"{api}/repos/{org}/{repo}/forks?"
         f"per_page={limit}&"
@@ -245,7 +245,7 @@ def rate_limit_message(r):
 def update_repos(row: Series) -> str:
     """Git clone a repo, or if already cloned, git pull."""
     url = row["git_url"]
-    https_url = url.replace("git://","https://")
+    https_url = url.replace("git://", "https://")
     owner = row["owner"]
     path = os.path.normpath(os.path.join(ROOTDIR, owner))
     t = datetime.now().strftime("%H:%M:%S")
