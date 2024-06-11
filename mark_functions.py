@@ -1,3 +1,5 @@
+"""All the functions that make marking possible."""
+
 import json
 import math
 import os
