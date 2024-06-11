@@ -150,8 +150,8 @@ def prepare_comment(item: dict) -> str:
     return message
 
 
-def set_comment(x, y, comment, y_offset=1):
-    request: dict[str, Any] = {
+def set_comment(x, y, comment, y_offset=1) -> dict[str, Any]:
+    request = {
         "repeatCell": {
             "range": {
                 "sheetId": 1704890600,
