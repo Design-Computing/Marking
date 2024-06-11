@@ -480,7 +480,7 @@ def mark_a_specific_person_week(
     start_time = time.time()
 
     python = sys.executable
-    path_to_test_shim = get_safe_path("marking_and_admin", test_file_path)
+    path_to_test_shim = get_safe_path("", test_file_path)
     path_to_tests = get_safe_path("..", "course", f"set{set_number}", "tests.py")
     path_to_repo = get_safe_path(ROOTDIR, row.owner)
 
