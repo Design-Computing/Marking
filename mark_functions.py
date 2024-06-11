@@ -18,7 +18,6 @@ from typing import Any  # , Optional, Set, Tuple, TypeVar
 import git
 import pandas as pd
 import requests
-import ruamel.yaml as yaml
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
