@@ -14,15 +14,18 @@ from datetime import datetime
 from io import StringIO
 from itertools import repeat
 from typing import Any  # , Optional, Set, Tuple, TypeVar
+from urllib.parse import parse_qs, urlparse
 
 import git
 import pandas as pd
 import requests
 from google.auth.transport.requests import Request
-from google_auth_oauthlib.flow import InstalledAppFlow
+from google_auth_oauthlib.flow import Flow  # , InstalledAppFlow
 from googleapiclient.discovery import build
 from pandas import DataFrame, Series
 from ruamel.yaml import YAML
+
+os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
 
 class RunCmd(threading.Thread):
@@ -52,9 +55,6 @@ class RunCmd(threading.Thread):
 def build_spreadsheet_service():
     # If modifying these scopes, delete the file token.pickle.
     scopes = ["https://www.googleapis.com/auth/spreadsheets"]
-    """Shows basic usage of the Sheets API.
-    Prints values from a sample spreadsheet.
-    """
     creds = None
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
@@ -63,23 +63,29 @@ def build_spreadsheet_service():
         with open("token.pickle", "rb") as token:
             creds = pickle.load(token)
     # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
+    if not creds:  # or not creds.valid: # Valis isn't returned any more
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                "marking_and_admin/credentials.json", scopes
+            flow = Flow.from_client_secrets_file(
+                "credentials.json",
+                scopes=scopes,
+                redirect_uri="https://supreme-giggle-jr4p79pjx72pvxw-8080.app.github.dev",
             )
             try:
-                creds = flow.run_local_server()
+                authorization_url, _ = flow.authorization_url(prompt="consent")
+                print(f"Authorization URL:\n\n{authorization_url}\n\n")
+                callback_url = input("Enter the callbak URL: ")
+
+                creds = flow.fetch_token(authorization_response=callback_url)
             except OSError as os_e:
                 print(os_e)
-                creds = flow.run_console()
+                # creds = flow.run_console()
         # Save the credentials for the next run
         with open("token.pickle", "wb") as token:
             pickle.dump(creds, token)
 
-    service = build("sheets", "v4", credentials=creds)
+    service = build("sheets", "v4", credentials=flow.credentials)
     return service
 
 
@@ -227,7 +233,9 @@ def get_forks(
 
 
 def rate_limit_message(r):
-    rate_limit = requests.get("https://api.github.com/rate_limit").json().get("rate")
+    rate_limit = (
+        requests.get("https://api.github.com/rate_limit", timeout=5).json().get("rate")
+    )
     reset_time = str(
         time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(rate_limit["reset"]))
     )
