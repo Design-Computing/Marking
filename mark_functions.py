@@ -24,6 +24,7 @@ from google_auth_oauthlib.flow import Flow  # , InstalledAppFlow
 from googleapiclient.discovery import build
 from pandas import DataFrame, Series
 from ruamel.yaml import YAML
+from ruamel.yaml.comments import CommentedMap as CM
 
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
@@ -116,21 +117,21 @@ def write(service, data=[["These"], ["are"], ["some"], ["d", "entries"]]):
     print(f"{result.get('totalUpdatedCells')} cells updated.")
 
 
-def process_for_writing(data):
+def process_for_writing(data) -> list[list[str | int]]:
     for i, row in enumerate(data):
         for j, item in enumerate(row):
-            if type(item) is dict or type(item) is yaml.comments.CommentedMap:
+            if isinstance(item, dict) or isinstance(item, CM):
                 data[i][j] = item.get("mark", str(dict(item)))
-            elif type(item) is not str and math.isnan(item):
+            elif not isinstance(item, str) and math.isnan(item):
                 data[i][j] = ""
     return data
 
 
-def process_for_notes(data):
+def process_for_notes(data) -> list[dict]:
     comments = []
     for i, row in enumerate(data):
         for j, item in enumerate(row):
-            if type(item) is dict:
+            if isinstance(item, dict):
                 readable_comment: str = prepare_comment(item)
                 ss_comment_package: dict = set_comment(j, i, readable_comment)
                 comments.append(ss_comment_package)
