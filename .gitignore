@@ -1,2 +1,7 @@
 credentials.json
 *.pyc
+token.pickle
+log.txt
+marks.csv
+student.json
+temp_results.json
