@@ -14,7 +14,6 @@ from datetime import datetime
 from io import StringIO
 from itertools import repeat
 from typing import Any  # , Optional, Set, Tuple, TypeVar
-from urllib.parse import parse_qs, urlparse
 
 import git
 import pandas as pd
@@ -57,14 +56,17 @@ def build_spreadsheet_service():
     # If modifying these scopes, delete the file token.pickle.
     scopes = ["https://www.googleapis.com/auth/spreadsheets"]
     creds = None
+    flow = None  # Initialize flow variable
+
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
     if os.path.exists("token.pickle"):
         with open("token.pickle", "rb") as token:
             creds = pickle.load(token)
+
     # If there are no (valid) credentials available, let the user log in.
-    if not creds:  # or not creds.valid: # Valis isn't returned any more
+    if not creds:  # or not creds.valid: # Valid isn't returned any more
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
@@ -73,20 +75,17 @@ def build_spreadsheet_service():
                 scopes=scopes,
                 redirect_uri="https://supreme-giggle-jr4p79pjx72pvxw-8080.app.github.dev",
             )
-            try:
-                authorization_url, _ = flow.authorization_url(prompt="consent")
-                print(f"Authorization URL:\n\n{authorization_url}\n\n")
-                callback_url = input("Enter the callbak URL: ")
+            authorization_url, _ = flow.authorization_url(prompt="consent")
+            print(f"Authorization URL:\n\n{authorization_url}\n\n")
+            callback_url = input("Enter the callback URL: ")
+            flow.fetch_token(authorization_response=callback_url)
+            creds = flow.credentials  # Use the credentials from the flow object
 
-                creds = flow.fetch_token(authorization_response=callback_url)
-            except OSError as os_e:
-                print(os_e)
-                # creds = flow.run_console()
         # Save the credentials for the next run
         with open("token.pickle", "wb") as token:
             pickle.dump(creds, token)
 
-    service = build("sheets", "v4", credentials=flow.credentials)
+    service = build("sheets", "v4", credentials=creds)
     return service
 
 
@@ -114,7 +113,7 @@ def write(service, data=[["These"], ["are"], ["some"], ["d", "entries"]]):
         .batchUpdate(spreadsheetId=MARKING_SPREADSHEET_ID, body=body)
         .execute()
     )
-    print(f"{result.get('totalUpdatedCells')} cells updated.")
+    print(f"{result.get('totalUpdatedCells')} cell comments updated.")
 
 
 def process_for_writing(data) -> list[list[str | int]]:
