@@ -711,4 +711,5 @@ def get_student_data():
 
 if __name__ == "__main__":
     print("👀  " * 30)
-    print("don't be a silly billy, run from marking_puller.py")
+    print("\nDon't be a silly billy, run from marking_puller.py\n")
+    print("👀  " * 30)
