@@ -13,15 +13,15 @@ import importlib.util
 import json
 import os
 import sys
-
-# from importlib import import_module
 from time import sleep
 
 
-def do_the_test(repo_path):
+def do_the_test(repo_path: str) -> dict[str, str | int]:
     """Run tests on a student's repo."""
     try:
         spec = importlib.util.spec_from_file_location("tests", TEST_PATH)
+        if spec is None or spec.loader is None:
+            raise ImportError("The specified module could not be found.")
         test = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(test)
         print("about to test", repo_path)
@@ -36,12 +36,12 @@ def do_the_test(repo_path):
         }
 
 
-def results_as_json(repo_path):
+def results_as_json(repo_path: str) -> str:
     """Save the results to a temporary json file."""
-    results = do_the_test(repo_path)
-    results["repo_owner"] = OWNER
-    print("\nresults:", json.dumps(results, indent=2), "\n")
-    return json.dumps(results)
+    these_results = do_the_test(repo_path)
+    these_results["repo_owner"] = OWNER
+    print("\nresults:", json.dumps(these_results, indent=2), "\n")
+    return json.dumps(these_results)
 
 
 # __name__ == "__main__": <= this is going to be true always because of the way,
@@ -49,9 +49,9 @@ def results_as_json(repo_path):
 # file, then argv will be missing the extra info
 if len(sys.argv) == 1:
     # 0:'C:\\Users\\ben\\Anaconda3\\python.exe'
-    OWNER = "nico-dp"
-    TEST_PATH = "C:\\Users\\bdoherty\\repos\\1161_py_course\\course\\set1\\tests.py"
-    REPO_PATH = f"C:\\Users\\bdoherty\\repos\\1161_py_course\\StudentRepos\\{OWNER}"
+    OWNER = "Chaldea8820"
+    TEST_PATH = os.path.normpath(os.path.abspath("../course/set1/tests.py"))
+    REPO_PATH = os.path.normpath(os.path.abspath(f"../StudentRepos/{OWNER}"))
 else:
     TEST_PATH = os.path.normpath(sys.argv[1])
     REPO_PATH = os.path.normpath(sys.argv[2])
