@@ -578,9 +578,19 @@ def get_details(row: Series) -> dict:
         with open(path_to_aboutMe, "r", encoding="utf-8") as yf:
             details_raw_yaml = yf.read()
         details: dict = dict(yaml.load(details_raw_yaml))
-        details["error"] = "👍"
-        details["owner"] = row.owner
-        return details
+
+        person_data = {
+            "owner": row.owner,
+            "git_url": row.git_url,
+            "first_name": details["first_name"],
+            "student_number": details["studentNumber"],
+            "stack_overflow_link": details["stackOverflowLink"],
+            "github": details["github"],
+            "error": "👍",
+            "updated": "👻",
+            "last_commit": "👻",
+        }
+        return person_data
     except FileNotFoundError as fnf:
         print(row)
         print(fnf)
@@ -672,7 +682,8 @@ def do_the_marking(
     deets = pd.DataFrame(list(mark_sheet.apply(get_details, axis=1)))
     # temp:
     deets.drop(["officialEmail", "contactEmail"], axis=1, errors="ignore", inplace=True)
-    mark_sheet = mark_sheet.merge(deets, on="owner")
+    mark_sheet = mark_sheet.merge(deets, on="owner", suffixes=("", "_y"))
+    mark_sheet.drop(mark_sheet.filter(regex="_y$").columns, axis=1, inplace=True)
 
     mark_sheet["updated"] = mark_sheet.apply(update_repos, axis=1)
     mark_sheet["last_commit"] = mark_sheet.apply(get_last_commit, axis=1)
