@@ -214,7 +214,6 @@ def get_forks(
 
     api = "https://api.github.com"
     limit = 100
-    # TODO: #29 take these secrets out, put them in an env, and reset them
     client_id = os.getenv("CLIENT_ID_GITHUB", "")
     secret = os.getenv("SECRET_GITHUB", "")
     url = (
