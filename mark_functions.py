@@ -223,7 +223,7 @@ def get_forks(
         f"client_secret={secret}'"
     )
     print("get forks from:\n", url)
-    r = requests.get(url)
+    r = requests.get(url, timeout=20)
     if r.status_code == 200:
         forks = r.json()
         repos = [
