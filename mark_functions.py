@@ -174,7 +174,7 @@ def set_comment(x, y, comment, y_offset=1) -> dict[str, Any]:
 
 def get_DF_from_CSV_URL(url, column_names=False):
     """Get a csv of values from google docs."""
-    r = requests.get(url)
+    r = requests.get(url, timeout=20)
     data = r.text
     if column_names:
         return pd.read_csv(StringIO(data), header=0, names=column_names)
