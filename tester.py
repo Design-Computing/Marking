@@ -3,7 +3,7 @@
 import os
 import time
 
-from marking_puller import RunCmd
+from mark_functions import RunCmd
 
 LOCAL = os.path.dirname(os.path.realpath(__file__))
 week_number = 1
@@ -18,8 +18,8 @@ for name in repos:
     args = [
         "python",
         "test_shim.py",  # if this breaks, it might need ./ on the front
-        f"..\\course\\set{week_number}\\tests.py",
-        f"..\\StudentRepos\\{name}",
+        f"../course/set{week_number}/tests.py",
+        f"../StudentRepos/{name}",
         name,
     ]
     print(args)
