@@ -28,6 +28,15 @@ from ruamel.yaml.comments import CommentedMap as CM
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
 
+THIS_YEAR = ""
+ROOTDIR = ""
+CHATTY = False
+FORCE_MARKING = False
+MARKING_SPREADSHEET_ID = ""
+MARKS_CSV = ""
+CWD = ""
+
+
 class RunCmd(threading.Thread):
     """Run a subprocess command, if it exceeds the timeout kill it.
 
