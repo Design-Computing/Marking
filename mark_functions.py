@@ -201,8 +201,10 @@ def get_forks(
     Limits to repos created this year (THIS_YEAR as a const)
 
     Args:
-        org (str, optional): The name of the Github user/organisation to pull the forks from. Defaults to "design-computing".
-        repo (str, optional): The name of the repo to get the forks of. Defaults to "me".
+        org (str, optional): The name of the Github user/organisation to pull
+                             the forks from. Defaults to "design-computing".
+        repo (str, optional): The name of the repo to get the forks of. Defaults
+                              to "me".
         force_inclusion_of_these_repos (list[str], optional): _description_. Defaults to [].
 
     Raises:
@@ -315,10 +317,10 @@ def try_to_kill(file_path: str, CHATTY: bool = False):
             print(file_path, e)
 
 
-def pull_all_repos(dirList, CHATTY: bool = False, hardcore_pull: bool = False):
+def pull_all_repos(dir_list, hardcore_pull: bool = False):
     """Pull latest version of all repos."""
-    of_total = len(dirList)
-    for i, student_repo in enumerate(dirList):
+    of_total = len(dir_list)
+    for i, student_repo in enumerate(dir_list):
         repo_is_here = os.path.join(ROOTDIR, student_repo)
         try:
             repo = git.cmd.Git(repo_is_here)
@@ -332,10 +334,10 @@ def pull_all_repos(dirList, CHATTY: bool = False, hardcore_pull: bool = False):
             print(student_repo, e)
 
 
-def csv_of_details(dirList):
+def csv_of_details(dir_list):
     """Make a CSV of all the students."""
     results = []
-    for student_repo in dirList:
+    for student_repo in dir_list:
         path = os.path.join(ROOTDIR, student_repo, "aboutMe.yml")
         details = open(path).read()
         # replaces the @ symbol
@@ -370,12 +372,12 @@ def fix_up_csv(path="csv/studentDetails.csv"):
     Mostly to undo tricks that were needed to deal with invalid yml
     """
     lines = []
-    with open(path) as infile:
+    with open(path, "r", encoding="utf-8") as infile:
         for line in infile:
             line = line.replace("^AT^", "@")
             line = line.replace(",,", ",-,")
             lines.append(line)
-    with open(path, "w") as outfile:
+    with open(path, "w", encoding="utf-8") as outfile:
         for line in lines:
             print(line)
             outfile.write(line)
@@ -383,7 +385,7 @@ def fix_up_csv(path="csv/studentDetails.csv"):
 
 def log_progress(message, logfile_name):
     """Write a message to a logfile."""
-    completed_students_list = open(logfile_name, "a")
+    completed_students_list = open(logfile_name, "a", encoding="utf-8")
     completed_students_list.write(message)
     completed_students_list.close()
 
@@ -426,8 +428,8 @@ def test_in_clean_environment(
     row: Series,
     set_number: int,
     timeout: int = 5,
-    logfile_name: str = "log.txt",
-    temp_file_path: str = "temp_results.json",
+    logfile_name: str = os.path.join("temp", "log.txt"),
+    temp_file_path: str = os.path.join("temp", "temp_results.json"),
     test_file_path: str = "test_shim.py",
 ) -> dict:
     pre = f"W{set_number}, {row.owner}:"
@@ -532,23 +534,23 @@ def get_safe_path(*parts):
     return abs_path
 
 
-def prepare_log(logfile_name, firstLine="here we go:\n"):
+def prepare_log(logfile_name, first_line="here we go:\n"):
     """Create or empty the log file."""
-    completed_students_list = open(logfile_name, "w")
-    completed_students_list.write(firstLine)
+    completed_students_list = open(logfile_name, "w", encoding="utf-8")
+    completed_students_list.write(first_line)
     completed_students_list.close()
 
 
-def mark_work(dirList, set_number, root_dir, dfPlease=True, timeout=5):
+def mark_work(dir_list, set_number, root_dir, df_please=True, timeout=5):
     """Mark the set's exercises."""
     logfile_name = "temp_completion_log"
     prepare_log(logfile_name)
-    r = len(dirList)  # for repeat count
+    r = len(dir_list)  # for repeat count
 
     results = list(
         map(
             test_in_clean_environment,  # Function name
-            dirList,  # student_repo
+            dir_list,  # student_repo
             repeat(root_dir, r),  # root_dir
             repeat(set_number, r),  # set_number
             repeat(logfile_name, r),  # logfile_name
@@ -556,17 +558,17 @@ def mark_work(dirList, set_number, root_dir, dfPlease=True, timeout=5):
         )
     )
 
-    resultsDF = pd.DataFrame(results)
+    results_df = pd.DataFrame(results)
     csv_path = f"csv/set{set_number}marks.csv"
-    resultsDF.to_csv(os.path.join(CWD, csv_path), index=False)
+    results_df.to_csv(os.path.join(CWD, csv_path), index=False)
     for _ in [1, 2, 3]:
         # this is pretty dirty, but it gets tricky when you have
         # ,,, -> ,-,, because each intance needs to be replaced multiple times
         # TODO: #makeitnice
         fix_up_csv(path=csv_path)
     print("\n+-+-+-+-+-+-+-+\n\n")
-    if dfPlease:
-        return resultsDF
+    if df_please:
+        return results_df
 
 
 def get_details(row: Series) -> dict:
@@ -623,9 +625,12 @@ def mark_week(
     """Mark a single week for all students.
 
     Args:
-        mark_sheet (Dataframe): A dataframe that describes who's going to get marked
-        set_number (int, optional): The number of the set that we're marking. Defaults to 1.
-        timeout (int, optional): number of seconds to try for before we cut this student off. Defaults to 10.
+        mark_sheet (Dataframe): A dataframe that describes who's going to get
+                                marked
+        set_number (int, optional): The number of the set that we're marking.
+                                    Defaults to 1.
+        timeout (int, optional): Number of seconds to try for before we cut this
+                                 student off. Defaults to 10.
         active (bool, optional): Is this week being marked yet?. Defaults to True.
 
     Returns:
@@ -642,19 +647,35 @@ def mark_week(
         return 0
 
 
+def get_student_data():
+    # TODO: instead of loading the pickle, load the marks.csv file so that
+    # the dataframe is preloaded with values. Then it doesn't need to mark students
+    # that haven't updated their work.
+    students = None
+    file_name = "student.json"
+    if os.path.exists(file_name):
+        with open(file_name, "r") as data_file:
+            students = json.load(data_file)
+    else:
+        students = get_forks(force_inclusion_of_these_repos=[])
+        with open("student.json", "w") as data_file:
+            json.dump(students, data_file, indent=2)
+    return students
+
+
 def do_the_marking(
     this_year="2023",
     rootdir="../StudentRepos",
     chatty=False,
     force_marking=False,
     marking_spreadsheet_id="16tESt_4BUf-9-oD04suTprkd1O0oEl6WjzflF_avSKY",  # 2022
-    marks_csv="marks.csv",
+    marks_csv=os.path.join("temp", "marks.csv"),
     mark_w1=True,
     mark_w2=False,
     mark_w3=False,
     mark_w4=False,
     mark_w5=False,
-    mark_exam=False,
+    mark_ex=False,
 ):
     global THIS_YEAR
     THIS_YEAR = this_year
@@ -693,9 +714,8 @@ def do_the_marking(
     mark_sheet["set3"] = mark_week(mark_sheet, set_number=3, timeout=30, active=mark_w3)
     mark_sheet["set4"] = mark_week(mark_sheet, set_number=4, timeout=50, active=mark_w4)
     mark_sheet["set5"] = mark_week(mark_sheet, set_number=5, timeout=50, active=mark_w5)
-    mark_sheet["exam"] = mark_week(
-        mark_sheet, set_number=8, timeout=45, active=mark_exam
-    )
+    mark_sheet["exam"] = mark_week(mark_sheet, set_number=8, timeout=45, active=mark_ex)
+
     mark_sheet.drop(["name"], axis=1, errors="ignore", inplace=True)
 
     mark_sheet["readme_mark"] = mark_sheet.apply(get_readmes, args=("mark",), axis=1)
@@ -712,23 +732,9 @@ def do_the_marking(
     print("that took", (time.time() - start_time) / 60, "minutes")
 
 
-def get_student_data():
-    # TODO: instead of loading the pickle, load the marks.csv file so that
-    # the dataframe is preloaded with values. Then it doesn't need to mark students
-    # that haven't updated their work.
-    students = None
-    file_name = "student.json"
-    if os.path.exists(file_name):
-        with open(file_name, "r") as data_file:
-            students = json.load(data_file)
-    else:
-        students = get_forks(force_inclusion_of_these_repos=[])
-        with open("student.json", "w") as data_file:
-            json.dump(students, data_file, indent=2)
-    return students
-
-
 if __name__ == "__main__":
-    print("👀  " * 30)
-    print("\nDon't be a silly billy, run from marking_puller.py\n")
-    print("👀  " * 30)
+    print(
+        "👀  " * 30,
+        "\nDon't be a silly billy, run from marking_puller.py\n",
+        "👀  " * 30,
+    )

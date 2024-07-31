@@ -70,7 +70,7 @@ OWNER:     {OWNER}
 """
 )
 
-with open("temp_results.json", "w") as temp_results:
+with open(os.path.join("temp", "temp_results.json"), "w") as temp_results:
     results = results_as_json(REPO_PATH)
     temp_results.write(results)
     sleep(0.50)
