@@ -36,12 +36,12 @@ def do_the_test(repo_path: str) -> dict[str, str | int]:
         }
 
 
-def results_as_json(repo_path: str) -> str:
+def get_results(repo_path: str) -> dict[str, str | int]:
     """Save the results to a temporary json file."""
     these_results = do_the_test(repo_path)
     these_results["repo_owner"] = OWNER
     print("\nresults:", json.dumps(these_results, indent=2), "\n")
-    return json.dumps(these_results)
+    return these_results
 
 
 # __name__ == "__main__": <= this is going to be true always because of the way,
@@ -50,7 +50,7 @@ def results_as_json(repo_path: str) -> str:
 if len(sys.argv) == 1:
     # 0:'C:\\Users\\ben\\Anaconda3\\python.exe'
     OWNER = "Chaldea8820"
-    TEST_PATH = os.path.normpath(os.path.abspath("../course/set1/tests.py"))
+    TEST_PATH = os.path.normpath(os.path.abspath("../course/set3/tests.py"))
     REPO_PATH = os.path.normpath(os.path.abspath(f"../StudentRepos/{OWNER}"))
 else:
     TEST_PATH = os.path.normpath(sys.argv[1])
@@ -70,9 +70,10 @@ OWNER:     {OWNER}
 """
 )
 
-with open(os.path.join("temp", "temp_results.json"), "w") as temp_results:
-    results = results_as_json(REPO_PATH)
-    temp_results.write(results)
-    sleep(0.50)
 
-sleep(0.50)
+path = os.path.join("temp", "temp_results.json")
+results = get_results(REPO_PATH)
+with open(path, "w", encoding="utf-8") as temp_results:
+    json.dump(results, temp_results, indent=2)
+
+sleep(2)
